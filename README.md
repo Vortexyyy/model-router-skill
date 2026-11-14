@@ -15,6 +15,10 @@ A [Claude Code](https://claude.com/claude-code) skill that picks which model sho
 - Rounds **up** on a boundary when a wrong answer would be costly.
 - Reports which model handled which part, and flags any substitution.
 
+## Fable usage guard
+
+Fable is skipped once usage reaches a cutoff (`FABLE_USAGE_CUTOFF = 45` percent, triggered at `>=`). Two figures are read with the Claude Code desktop app's `get_usage` tool: the account's rolling 5-hour limit and Fable's weekly limit. If **either** is at or above the cutoff, very-hard tasks fall back to Opus, then Sonnet. Fable resumes automatically once both drop below the cutoff. If usage can't be read (for example outside the desktop app), Fable stays allowed and the routing note says "usage unknown". The cutoff constant and a table of check scenarios live in `SKILL.md`.
+
 ## Install
 
 Skills live in `~/.claude/skills/<name>/SKILL.md`.

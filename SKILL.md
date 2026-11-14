@@ -24,6 +24,42 @@ Verification status of the identifiers (checked against this environment's model
 
 Fable preference: use 5.2 (newest). Falling back to 5.1 is only possible where a full model id can be passed (for example direct API calls, or a host that exposes `--model claude-fable-5-1`); with the `Agent` tool, if `fable` fails, fall back to `opus` and say so.
 
+## Fable usage guard
+
+Fable is the scarcest tier, so stop selecting it when usage runs high.
+
+```
+FABLE_USAGE_CUTOFF = 45   # percent; edit here to change the threshold
+```
+
+Before routing anything to `fable`, read the plan limits with the `get_usage` tool (Claude Code desktop app: `mcp__ccd_session_mgmt__get_usage`, field `plan`). Check two figures, both as "percent used":
+
+1. **Account 5-hour limit.** Rolling window as the app reports it; the reset time comes with the figure.
+2. **Fable weekly limit** (the per-model weekly entry for Fable).
+
+Rules:
+- If **either** figure is **>= FABLE_USAGE_CUTOFF** (45 and above triggers; 44.9 does not), Fable is **excluded**. Route very-hard tasks to the existing fallback order instead: Opus 5.5, then Sonnet.
+- Both figures **below** the cutoff: Fable is eligible again. Re-read at each routing decision; the 5-hour window rolls, so Fable resumes by itself once usage drops back under the cutoff.
+- Say which figure triggered the exclusion and its percent in the routing note, for example "Fable skipped: 5-hour usage 52% >= 45%".
+- Use the same basis as the limit itself: the percent the app reports, never a token count of your own.
+
+Edge cases:
+- **Usage unavailable** (`get_usage` missing in this host, status `unavailable`, `not_applicable`, or an error): treat Fable as **eligible** and note "usage unknown, Fable allowed". Do not block the top tier on a failed read. If only one of the two figures can be read, apply the rule to that one.
+- **Fable excluded and Opus also unusable** (call errors or is refused): fall back to Sonnet. If no model can take the task, stop and tell the user which models failed and why. Never return an empty or silent result.
+- A Fable call that errors at run time is handled the same way: fall back one step down and say so.
+
+Check scenarios (walk through these when editing this section):
+
+| 5-hour % | Fable weekly % | Very-hard task routes to |
+| --- | --- | --- |
+| 30 | 20 | Fable |
+| 44.9 | 20 | Fable |
+| 45 | 20 | Opus 5.5 (excluded: 5-hour) |
+| 30 | 60 | Opus 5.5 (excluded: weekly) |
+| 80 | 80, Opus errors | Sonnet, with a note |
+| 80 -> window resets, now 10 | 20 | Fable again |
+| unavailable | unavailable | Fable, with "usage unknown" note |
+
 ## Rubric
 
 Score by observable signals; the highest tier any signal reaches wins.
@@ -54,6 +90,7 @@ Score by observable signals; the highest tier any signal reaches wins.
 
 ## Delegation
 
+0. If the tier is very hard, apply the Fable usage guard above before choosing the model.
 1. State the classification in one line: tier, the signal that decided it, and the model.
 2. Call the `Agent` tool with the matching `model` value. Independent subtasks go in one message so they run in parallel. Do not set `effort` unless the user asked for a level.
 3. Write a self-contained prompt: goal, file paths, constraints, and what "done" looks like. The subagent starts with no context.
