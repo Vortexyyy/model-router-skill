@@ -96,3 +96,40 @@ Score by observable signals; the highest tier any signal reaches wins.
 3. Write a self-contained prompt: goal, file paths, constraints, and what "done" looks like. The subagent starts with no context.
 4. Check the result yourself (read the changed file, run the quick check) before reporting it as done.
 5. In the final answer, name which model handled which part, and flag any substitution (for example Sonnet 5.5 standing in for 4.6).
+
+## When not to delegate
+
+Delegating has a cost: a cold start, a prompt you must write, and a result you must check. Do the work inline when:
+
+- it is a single obvious command or a one-line edit;
+- you already have all the context loaded and a subagent would need it re-explained;
+- the answer is needed immediately to decide the very next step.
+
+Routing is for work that is big enough, or independent enough, to be worth handing off.
+
+## Worked examples
+
+| Task | Tier | Why |
+| --- | --- | --- |
+| "Rename `getUser` to `fetchUser` in `utils.ts`" | Easy -> `sonnet` | One file, mechanical, easy to verify. |
+| "Add pagination to the orders API and update the UI" | Hard / medium -> `opus` | Several files, a few design choices. |
+| "Find why ledger totals drift by cents under load" | Very hard -> `fable` | Needs profiling and careful reasoning, wrong answer is costly. |
+| "Change how refresh tokens are stored" | Very hard -> `fable` | Security-critical, hard to undo. Round **up**. |
+| "Summarize this 50-line file" | Easy -> `sonnet` | Small, low risk. |
+| Two edits to the same file | One agent | Never split work that edits the same files across parallel agents. |
+
+## Writing the delegation prompt
+
+A subagent starts with no context. Every prompt should contain:
+
+1. **Goal**: one sentence, in terms of the result.
+2. **Where**: exact file paths and the relevant function or section names.
+3. **Constraints**: what must not change, style rules, version limits.
+4. **Done means**: the check that proves it (a command that passes, a file that exists).
+5. **What to report back**: files changed, anything it could not verify.
+
+## If something fails
+
+- A model call errors or is rate-limited: fall back one tier down (Fable -> Opus -> Sonnet), say so in the final note, and never return an empty or silent result.
+- A subagent reports success but gives no evidence: check the result yourself (read the changed file, run the quick check) before telling the user it is done.
+- If no model can take the task, stop and tell the user which models failed and why.
