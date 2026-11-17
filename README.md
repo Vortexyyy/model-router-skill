@@ -1,4 +1,19 @@
-# model-router
+<!-- spiced -->
+<p align="center">
+  <img src="docs/banner.svg" alt="model-router-skill" width="100%">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/claude%20code-skill-8b5cf6?style=for-the-badge&labelColor=0b0a24" alt="claude%20code">
+  <img src="https://img.shields.io/badge/tiers-fable%20%E2%80%A2%20opus%20%E2%80%A2%20sonnet-22d3ee?style=for-the-badge&labelColor=0b0a24" alt="tiers">
+  <a href="https://github.com/Vortexyyy/model-router-skill/stargazers"><img src="https://img.shields.io/github/stars/Vortexyyy/model-router-skill?style=for-the-badge&color=facc15&labelColor=0b0a24&logo=github" alt="Stars"></a>
+</p>
+
+<h3 align="center">A Claude Code skill that picks the right model for every task by difficulty, and guards your Fable usage.</h3>
+
+<p align="center"><b>⭐ Like it? <a href="https://github.com/Vortexyyy/model-router-skill/stargazers">Drop a star</a>. It's free, takes a second, and helps others find it. ⭐</b></p>
+
+---
 
 A [Claude Code](https://claude.com/claude-code) skill that picks which model should handle a task, based on difficulty, whenever work is being delegated to a subagent.
 
@@ -42,3 +57,14 @@ Edit `SKILL.md`: the rubric, the tier-to-model table and the boundary rule are p
 ## License
 
 MIT
+
+
+## 💜 Support
+
+- ⭐ **[Star this repo](https://github.com/Vortexyyy/model-router-skill/stargazers)** so more people can find it.
+- 🐛 **[Open an issue](https://github.com/Vortexyyy/model-router-skill/issues)** for bugs or ideas.
+- 📣 Share it with a friend.
+
+<p align="center">
+  <a href="https://github.com/Vortexyyy/model-router-skill/stargazers"><img src="https://img.shields.io/badge/%E2%AD%90%20Star%20model--router--skill-8b5cf6?style=for-the-badge&labelColor=0b0a24" alt="Star"></a>
+</p>
